@@ -42,41 +42,61 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
 
     PqNode* currNode = pq->tail; //start search from tail 
     int d = 0;
-    int miss = 0; //var indicating page not found (1 if true)
+    int miss = 1; //var indicating page not found (1 if true)
 
-    while (currNode->pageNum != pageNum){
-        //if you reach the end of the list (head)
-        if (currNode->prev = NULL){ //using prev because starting at tail...
+    //testing
+    //printf("%ld",currNode->pageNum);
+
+    while (currNode != NULL ){
+
+        //current segfault
             if (currNode->pageNum == pageNum){
                 miss = 0;
+                break;
             }
             else{
                 miss = 1;
+                currNode = currNode->prev;
+                d++;
             }
-        }
-        currNode = currNode->prev;
-        d++;
+        
     }   
 
     // MISS path (page not found):
     //   - Allocate a new node for pageNum and insert it at the tail.
     //   - If size now exceeds maxSize, evict the head node (free it).
     //   - Return -1.
-    if (miss = 1){
+    if (miss == 1){
         
         //Allocate new node for pageNum at the tail
             //create the new node (malloc)
             PqNode* newNode = malloc(sizeof(PqNode));
-            //point new nodes previous to current tail
-            newNode->prev=pq->tail;
-            //point the current tails next at the new node
-            pq->tail->next=newNode;
-            //point the lists tail to the new node
-            pq->tail=newNode;
-            //make the new nodes next NULL (because its the end)    
-            newNode->next=NULL;
-            //add data to new node
-            newNode->pageNum=pageNum;
+
+            if (pq->tail !=NULL){
+                //point new nodes previous to current tail
+                newNode->prev=pq->tail;
+                //point the current tails next at the new node
+                pq->tail->next=newNode;
+
+                //point the lists tail to the new node
+                pq->tail=newNode;
+                //make the new nodes next NULL (because its the end)    
+                newNode->next=NULL;
+                //add data to new node
+                newNode->pageNum=pageNum;
+            }
+            else{
+                //point the lists tail to the new node
+                pq->tail=newNode;
+                //point the list head at the new node (because it is the only node in the list rn)
+                pq->head=newNode;
+                //make the new nodes nexts NULL (because its the only node)    
+                newNode->next=NULL;
+                newNode->prev=NULL;
+                //add data to new node
+                newNode->pageNum=pageNum;
+            }
+
         
         //If position/size exceeds maxSize
         if (d>pq->maxSize){
@@ -98,9 +118,15 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
     //     it at the tail (most recently used).
     //   - Return d.
     else{
-        //create temp node ptr that points to current node
+        
+        if(currNode != pq->tail){
+
+            //create temp node ptr that points to current node
             PqNode* tmpNode = currNode;
+
             //point the node in front of curr's prev to the node behind curr
+            
+            //SEGFAULT
             currNode->next->prev = currNode->prev;
             
             //point the node behind curr's next to the node in front of curr
@@ -118,9 +144,10 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
 
             //delete the old nodes position
             free(tmpNode);
+        }
 
-            //return d
-            return d;
+        //return d
+        return d;
     }
 
 }
@@ -131,6 +158,8 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
 void pqFree(PageQueue *pq) {
     // TODO: Walk from head to tail, free each node, then free
     //       the PageQueue struct itself.
+
+
 }
 
 /**
@@ -140,4 +169,13 @@ void pqPrint(PageQueue *pq) {
     // TODO (optional): Print each page number from head to tail,
     //                  marking which is head and which is tail.
     //                  Useful for desk-checking small traces.
+    PqNode* currentNode = pq->head;
+    printf("HEAD:\n");
+    while (currentNode != NULL){
+        //print the information/data at the current node pointer
+        printf("%ld\n",currentNode->pageNum);
+        //direct to the next node
+        currentNode=currentNode->next;
+    }
+    printf("TAIL^\n");
 }
