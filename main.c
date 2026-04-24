@@ -136,6 +136,9 @@ int main(int argc, char **argv) {
 
     // TODO: Free your PageQueue and the faults[] array,
     //       then close the file.
+    pqFree(pq);
+    free(faults);
+    fclose(ifp);
 
     return 0;
 }

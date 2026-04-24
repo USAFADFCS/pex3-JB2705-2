@@ -255,7 +255,7 @@ void pqFree(PageQueue *pq) {
     //int position = 0;
 
     //HIGH LEVEL: keep freeing the tail until size is 0, then free list head and tail ptrs
-    while (pq->size > 0){
+    while (pq->size > 1){
         
         PqNode* currentNode = pq->tail->prev;
         //current node now points to node before last
@@ -269,6 +269,8 @@ void pqFree(PageQueue *pq) {
         pq->size--;
     }
 
+    free(pq->head);
+    
     free(pq);
 
 
