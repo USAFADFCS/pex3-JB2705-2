@@ -73,7 +73,9 @@ int main(int argc, char **argv) {
     //       available.  Use calloc so all entries start at zero.
     
     PageQueue* pq = pqInit(maxFrames);
-    int* faults = (int*)calloc(maxFrames,sizeof(int));
+
+    int* faults = (int*)calloc(maxFrames+1,sizeof(int));
+
     //test
     //printf("TESTING!!\n");
     //pqPrint(pq);
@@ -108,7 +110,7 @@ int main(int argc, char **argv) {
         
         if (d==-1){
             // Miss: fault for every frame count
-            for (int f = 1; f <= maxFrames; f++){
+            for (int f = 1; f <= maxFrames+1; f++){
                 faults[f]++;
             }
         }

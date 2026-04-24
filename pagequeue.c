@@ -49,7 +49,6 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
 
     while (currNode != NULL ){
 
-        //current segfault
             if (currNode->pageNum == pageNum){
                 miss = 0;
 
@@ -93,7 +92,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         }
         
         //if pq only has 1
-        if (pq->size == 1){
+        else if (pq->size == 1){
             //create the new node (malloc)
             PqNode* newNode = malloc(sizeof(PqNode));
             
@@ -103,6 +102,8 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
             pq->head->next = newNode;
             //point the new nodes/tail's prev to the head
             newNode->prev = pq->head;
+            //set the new tails next to null
+            newNode->next = NULL;
             
             //add data to new node
             newNode->pageNum=pageNum;
@@ -111,7 +112,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         }
 
         //if pq has 2 or more
-        if (pq->size >= 2){
+        else if (pq->size >= 2){
             //create the new node (malloc)
             PqNode* newNode = malloc(sizeof(PqNode));
 
@@ -175,16 +176,20 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
             return d;
         }
 
-        //if the currNode is the head
+        //if the currNode is the head-move to tail
         else if (currNode == pq->head){
-            PqNode* nextNode = currNode->next;
-
-            nextNode->prev = NULL;
-
-            pq->head = nextNode;
-
-            pq->tail->next = currNode;
-
+            
+            //make the next node after the head, the new head
+            PqNode* newHead = pq->head->next;
+            pq->head = newHead;
+            //make the new heads prev NULL
+            newHead->prev = NULL;
+            
+            //set currNodes prev to the current tail
+            currNode->prev = pq->tail;
+            //set the new tail (currnode) next to NULL
+            currNode->next = NULL;
+            //point the tail at currnode
             pq->tail = currNode;
 
             return d;
@@ -192,6 +197,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
 
         //if the node is in the middle
         else{
+            
 
             //create temp node ptrs that point to the nodes before and after the current node
             PqNode* nextNode;
@@ -202,19 +208,20 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
             //test
             //printf("attempting to re-route\n");
             
-            if( prevNode != NULL){
-                //point the node behind curr to the node after curr
-                prevNode->next = nextNode;
+            //if( prevNode != NULL){
 
-                //point the node after curr to the node before curr
-                nextNode->prev = prevNode;
-                //now the list should skip over where the hit node (curr) used to be
-                
-                //set the new tail to the current node
-                pq->tail->next = currNode;
+            //point the node behind curr to the node after curr
+            prevNode->next = nextNode;
 
-                currNode->prev = pq->tail;
-            }
+            //point the node after curr to the node before curr
+            nextNode->prev = prevNode;
+            //now the list should skip over where the hit node (curr) used to be
+            
+            //set the new tail to the current node
+            pq->tail->next = currNode;
+
+            currNode->prev = pq->tail;
+            //}
 
             pq->tail = currNode;
 
@@ -241,6 +248,25 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
 void pqFree(PageQueue *pq) {
     // TODO: Walk from head to tail, free each node, then free
     //       the PageQueue struct itself.
+
+    //int position = 0;
+
+    //HIGH LEVEL: keep freeing the tail until size is 0, then free list head and tail ptrs
+    while (pq->size > 0){
+        
+        PqNode* currentNode = pq->tail->prev;
+        //current node now points to node before last
+        //set current node next to NULL (to signify last)
+        currentNode->next=NULL;
+        //free current list tail
+        free(pq->tail);
+        //set list tail to current node
+        pq->tail=currentNode;
+        //decrement size
+        pq->size--;
+    }
+
+    free(pq);
 
 
 }
