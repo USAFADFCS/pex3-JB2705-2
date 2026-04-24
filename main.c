@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
         
         if (d==-1){
             // Miss: fault for every frame count
-            for (int f = 1; f <= maxFrames+1; f++){
+            for (int f = 1; f <= maxFrames; f++){
                 faults[f]++;
             }
         }

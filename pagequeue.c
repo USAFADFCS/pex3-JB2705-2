@@ -189,6 +189,10 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
             currNode->prev = pq->tail;
             //set the new tail (currnode) next to NULL
             currNode->next = NULL;
+
+            //set current tails next to currnode
+            pq->tail->next = currNode;
+
             //point the tail at currnode
             pq->tail = currNode;
 
@@ -198,7 +202,6 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         //if the node is in the middle
         else{
             
-
             //create temp node ptrs that point to the nodes before and after the current node
             PqNode* nextNode;
             PqNode* prevNode;
