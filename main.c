@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
     PageQueue* pq = pqInit(maxFrames);
     int* faults = (int*)calloc(maxFrames,sizeof(int));
     //test
-    printf("TESTING!!\n");
+    //printf("TESTING!!\n");
     //pqPrint(pq);
 
     int d = 0;

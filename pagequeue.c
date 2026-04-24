@@ -59,7 +59,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
                 break;
             }
             else{
-                miss = 1;
+                //miss = 1;
                 currNode = currNode->prev;
                 d++;
             }
@@ -133,14 +133,30 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         //If position/size exceeds maxSize
         if (pq->size > (pq->maxSize)){
             //evict head node
+
+               PqNode* newHead = pq->head->next;
+
+               pq->head = newHead;
+
+               free(newHead->prev);
+               
+               newHead->prev=NULL;
+
+
+                /*
                 //create temp node ptr that points to current list head
-                PqNode* tmpNode = pq->head;
+                PqNode* oldHead = pq->head;
                 //set list head equal to current heads next
                 pq->head=pq->head->next;
                 //set new heads prev to NULL
                 pq->head->prev=NULL;
                 //free the old heads node using the temp ptr
                 free(tmpNode);
+
+                */
+
+                //decrement size
+                pq->size--;
                 }
         
         return -1;
@@ -160,7 +176,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         }
 
         //if the currNode is the head
-        if (currNode == pq->head){
+        else if (currNode == pq->head){
             PqNode* nextNode = currNode->next;
 
             nextNode->prev = NULL;
@@ -174,8 +190,6 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
             return d;
         }
 
-
-
         //if the node is in the middle
         else{
 
@@ -188,17 +202,19 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
             //test
             //printf("attempting to re-route\n");
             
-            //point the node behind curr to the node after curr
-            prevNode->next = nextNode;
+            if( prevNode != NULL){
+                //point the node behind curr to the node after curr
+                prevNode->next = nextNode;
 
-            //point the node after curr to the node before curr
-            nextNode->prev = prevNode;
-            //now the list should skip over where the hit node (curr) used to be
-            
-            //set the new tail to the current node
-            pq->tail->next = currNode;
+                //point the node after curr to the node before curr
+                nextNode->prev = prevNode;
+                //now the list should skip over where the hit node (curr) used to be
+                
+                //set the new tail to the current node
+                pq->tail->next = currNode;
 
-            currNode->prev = pq->tail;
+                currNode->prev = pq->tail;
+            }
 
             pq->tail = currNode;
 
