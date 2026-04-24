@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
     printf("TESTING!!\n");
     //pqPrint(pq);
 
-    int d= 0;
+    int d = 0;
 
     // Process each memory access from the trace file
     while (!feof(ifp)) {

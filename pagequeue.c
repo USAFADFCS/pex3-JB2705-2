@@ -52,6 +52,10 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         //current segfault
             if (currNode->pageNum == pageNum){
                 miss = 0;
+
+                //TEST
+                //printf("A hit has occured!\n");
+
                 break;
             }
             else{
@@ -69,37 +73,65 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
     if (miss == 1){
         
         //Allocate new node for pageNum at the tail
+
+        //CASES
+        //If pq is empty
+        if (pq->size == 0){
+            //create the new node (malloc)
+            PqNode* newNode = malloc(sizeof(PqNode));
+            //point the lists tail to the new node
+            pq->tail=newNode;
+            //point the list head at the new node (because it is the only node in the list rn)
+            pq->head=newNode;
+            //make the new nodes nexts NULL (because its the only node)    
+            newNode->next=NULL;
+            newNode->prev=NULL;
+            //add data to new node
+            newNode->pageNum=pageNum;
+            //increment size
+            pq->size++;
+        }
+        
+        //if pq only has 1
+        if (pq->size == 1){
+            //create the new node (malloc)
+            PqNode* newNode = malloc(sizeof(PqNode));
+            
+            //point the lists tail to the new node
+            pq->tail = newNode;
+            //point the head's next to the new node
+            pq->head->next = newNode;
+            //point the new nodes/tail's prev to the head
+            newNode->prev = pq->head;
+            
+            //add data to new node
+            newNode->pageNum=pageNum;
+            //increment size
+            pq->size++;
+        }
+
+        //if pq has 2 or more
+        if (pq->size >= 2){
             //create the new node (malloc)
             PqNode* newNode = malloc(sizeof(PqNode));
 
-            if (pq->tail !=NULL){
-                //point new nodes previous to current tail
-                newNode->prev=pq->tail;
-                //point the current tails next at the new node
-                pq->tail->next=newNode;
+            //point the current tails next at the new node
+            pq->tail->next = newNode;
+            //point the new nodes previous at the current tail
+            newNode->prev = pq->tail;
+            //point the tail at the new node
+            pq->tail = newNode;
+            //set the new tails next to NULL
+            newNode->next = NULL;
 
-                //point the lists tail to the new node
-                pq->tail=newNode;
-                //make the new nodes next NULL (because its the end)    
-                newNode->next=NULL;
-                //add data to new node
-                newNode->pageNum=pageNum;
-            }
-            else{
-                //point the lists tail to the new node
-                pq->tail=newNode;
-                //point the list head at the new node (because it is the only node in the list rn)
-                pq->head=newNode;
-                //make the new nodes nexts NULL (because its the only node)    
-                newNode->next=NULL;
-                newNode->prev=NULL;
-                //add data to new node
-                newNode->pageNum=pageNum;
-            }
-
-        
+            //add data to new node
+            newNode->pageNum=pageNum;
+            //increment size
+            pq->size++;
+        }
+  
         //If position/size exceeds maxSize
-        if (d>pq->maxSize){
+        if (pq->size > (pq->maxSize)){
             //evict head node
                 //create temp node ptr that points to current list head
                 PqNode* tmpNode = pq->head;
@@ -113,24 +145,54 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         
         return -1;
     }
+    
     // HIT path (page found at depth d):
     //   - Remove the node from its current position and re-insert
     //     it at the tail (most recently used).
     //   - Return d.
     else{
         
-        if(currNode != pq->tail){
+        //CASES
+        //if there is only 1 in the queue or if it is already the tail
+        if (pq->size <=1 || pq->tail == currNode){
+            //simply return d as it is already the tail
+            return d;
+        }
 
-            //create temp node ptr that points to current node
-            PqNode* tmpNode = currNode;
+        //if the currNode is the head
+        if (currNode == pq->head){
+            PqNode* nextNode = currNode->next;
 
+            nextNode->prev = NULL;
+
+            pq->head = nextNode;
+
+            pq->tail->next = currNode;
+
+            pq->tail = currNode;
+
+            return d;
+        }
+
+
+
+        //if the node is in the middle
+        else{
+
+            //create temp node ptrs that point to the nodes before and after the current node
+            PqNode* nextNode;
+            PqNode* prevNode;
             //point the node in front of curr's prev to the node behind curr
+            nextNode = currNode->next;
+            prevNode = currNode->prev;
+            //test
+            //printf("attempting to re-route\n");
             
-            //SEGFAULT
-            currNode->next->prev = currNode->prev;
-            
-            //point the node behind curr's next to the node in front of curr
-            currNode->prev->next = currNode->next;
+            //point the node behind curr to the node after curr
+            prevNode->next = nextNode;
+
+            //point the node after curr to the node before curr
+            nextNode->prev = prevNode;
             //now the list should skip over where the hit node (curr) used to be
             
             //set the new tail to the current node
@@ -142,12 +204,17 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
 
             pq->tail->next = NULL;
 
+            //test
+            //printf("re-route sucessful. returning d...\n");
+
             //delete the old nodes position
-            free(tmpNode);
+            //free(tmpNode);
+
+            //return d
+            return d;
         }
 
-        //return d
-        return d;
+        
     }
 
 }
