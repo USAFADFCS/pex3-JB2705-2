@@ -6,7 +6,9 @@
  * Purpose: Reads a BYU binary memory trace file and simulates
  *          LRU page replacement to measure fault rates across
  *          varying frame allocations.
- * Documentation: TBD
+ * Documentation:I asked Dr. Weingart for assistance multiple times while completing the code portion of this PEX, who gave me pointers on how to fix my page faults. 
+ * C2C Aidan Blankenship ultimately helped me get past the page fault I was most stuck on as he reviewed my code and helped me realize that 
+ * I failed to allocate a pointer in my HIT track which threw off my entire page queue.
  * =========================================================== */
 #include <stdio.h>
 #include <stdlib.h>
